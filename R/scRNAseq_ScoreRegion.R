@@ -1,3 +1,32 @@
+#' Trans row names of a data frame according to a meta file
+#'
+#' @param BulkRNAseq.expr A data frame: Bulk RNA-seq gene expression values of each region, should have same gene names(row names) as in scRNA-seq
+#' @param Meta A data frame with new name and old name
+#' @param from old name
+#' @param to new name
+#'
+#' @return A data frame with row names changed (rows may not as long as before)
+#' @export
+#'
+#' @examples
+#' data(FlyGeneMeta)
+#' data(ISC)
+#' head(ISC)
+#' head(scRNAseq_Score_Region_Check(ISC, FlyGeneMeta))
+scRNAseq_Score_Region_Check <- function(BulkRNAseq.expr,
+                                        Meta,
+                                        from = "gene_id",
+                                        to = "gene_name"){
+  # how many row names of BulkRNAseq.expr not exist in Meta.
+  not.exists <- rownames(Meta)[rownames(Meta) %in% Meta[,from]]
+  message(paste0(length(not.exists), " features from data frame not exist in meta file!"))
+  BulkRNAseq.expr <- BulkRNAseq.expr[rownames(BulkRNAseq.expr) %in%  Meta[,from],]
+  mapping <- Meta[,to]
+  names(mapping) <- Meta[,from]
+  rownames(BulkRNAseq.expr) <- mapping[rownames(BulkRNAseq.expr)]
+  return(BulkRNAseq.expr)
+}
+
 #' Check Bulk RNA-seq Region data file
 #'
 #' @param Adf A data frame: Bulk RNA-seq gene expression values of each region, should have same gene names(row names) as in scRNA-seq
@@ -111,11 +140,12 @@ scRNAseq_Score_Region <- function(SeuratObj,
 }
 
 #' evaluate the UMI And top n genes combination by Gini index
-#' hopefully find a combination with a relatively high Gini index
+#'
+#' To find a combination with a relatively high Gini index
 #'
 #' @param ScoreList A list: Output from scRNAseq_Score_Region function
 #'
-#' @return a heat-map plot of each combination(x: genes used; y: UMI cutoff)
+#' @return a Gini index heatmap of all combinations (x: genes used; y: UMI cutoff)
 #' @export
 #'
 #' @examples

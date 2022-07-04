@@ -41,7 +41,19 @@ library(MyRPackage)
 
 #### Predict Cluster location from bulk RNA-seq
 
-**method 1: Region top Genes in binary mode**
+##### Preparation
+
+将RNAseq里的基因ID转为symbol，注意，要使用与单细胞数据分析用的GTF文件来生成``FlyGeneMeta``。
+
+```{r}
+data(FlyGeneMeta)
+data(ISC)
+head(ISC)
+head(scRNAseq_Score_Region_Check(ISC, FlyGeneMeta))
+```
+
+
+##### Method 1: Region top Genes in binary mode
 
 ```{r}
 data(scRNA)
@@ -58,7 +70,7 @@ scRNAseq_Score_Region_plot(score.list)
 scRNAseq_Score_Region_plot(score.list, 100, 100)
 ```
 
-**method 2: Expression correlation**
+##### Method 2: Expression correlation
 
 ```{r}
 score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman")
@@ -68,7 +80,7 @@ pheatmap::pheatmap(score.matrix)
 ```
 
 
-**compare results from two methods**
+##### compare results from two methods
 
 
 ```{r}

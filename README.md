@@ -30,7 +30,33 @@ library(MyRPackage)
 
 #### Predict Cluster location from bulk RNA-seq
 
-**method 1: Region top Genes in binary mode**
+##### Preparation
+
+将RNAseq里的基因ID转为symbol，注意，要使用与单细胞数据分析用的GTF文件来生成`FlyGeneMeta`。
+
+``` r
+data(FlyGeneMeta)
+data(ISC)
+head(ISC)
+#>                R1    R2    R3    R4    R5
+#> FBgn0000003 0.069     0     0     0     0
+#> FBgn0000008 0.525 1.392 0.845 1.056 0.946
+#> FBgn0000014 0.007 0.002     0 0.005 0.001
+#> FBgn0000015  0.05 0.048     0 0.008  0.03
+#> FBgn0000017 0.053 0.045 0.067 0.024 0.039
+#> FBgn0000018 1.062 3.179 2.493 3.157 3.051
+head(scRNAseq_Score_Region_Check(ISC, FlyGeneMeta))
+#> 0 features from data frame not exist in meta file!
+#>                   R1    R2    R3    R4    R5
+#> 7SLRNA:CR32864 0.069     0     0     0     0
+#> a              0.525 1.392 0.845 1.056 0.946
+#> abd-A          0.007 0.002     0 0.005 0.001
+#> Abd-B           0.05 0.048     0 0.008  0.03
+#> Abl            0.053 0.045 0.067 0.024 0.039
+#> abo            1.062 3.179 2.493 3.157 3.051
+```
+
+##### Method 1: Region top Genes in binary mode
 
 ``` r
 data(scRNA)
@@ -39,7 +65,7 @@ score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
 scRNAseq_Score_Region_evaluate(score.list)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 ``` r
 # correlation of each parameter combination
@@ -51,31 +77,31 @@ scRNAseq_Score_Region_plot(score.list)
 #> Using UMI Cutoff: 20; Genes Used: 10
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ``` r
 scRNAseq_Score_Region_plot(score.list, 100, 100)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-2.png" width="100%" />
 
-**method 2: Expression correlation**
+##### Method 2: Expression correlation
 
 ``` r
 score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman")
 pheatmap::pheatmap(score.matrix)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 ``` r
 score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
 pheatmap::pheatmap(score.matrix)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-2.png" width="100%" />
 
-**compare results from two methods**
+##### compare results from two methods
 
 ``` r
 head(scRNAseq_Score_Compare(score.list,score.matrix),20)

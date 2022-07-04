@@ -2,8 +2,7 @@
 % Please edit documentation in R/scRNAseq_ScoreRegion.R
 \name{scRNAseq_Score_Region_evaluate}
 \alias{scRNAseq_Score_Region_evaluate}
-\title{evaluate the UMI And top n genes combination by Gini index
-hopefully find a combination with a relatively high Gini index}
+\title{evaluate the UMI And top n genes combination by Gini index}
 \usage{
 scRNAseq_Score_Region_evaluate(ScoreList)
 }
@@ -11,11 +10,10 @@ scRNAseq_Score_Region_evaluate(ScoreList)
 \item{ScoreList}{A list: Output from scRNAseq_Score_Region function}
 }
 \value{
-a heat-map plot of each combination(x: genes used; y: UMI cutoff)
+a Gini index heatmap of all combinations (x: genes used; y: UMI cutoff)
 }
 \description{
-evaluate the UMI And top n genes combination by Gini index
-hopefully find a combination with a relatively high Gini index
+To find a combination with a relatively high Gini index
 }
 \examples{
 data(scRNA)
