@@ -1,3 +1,19 @@
+#' Check Bulk RNA-seq Region data file
+#'
+#' @param Adf A data frame: Bulk RNA-seq gene expression values of each region, should have same gene names(row names) as in scRNA-seq
+#'
+#' @return A data frame with all columns are numeric
+#'
+#' @examples
+#' # Not run
+#' # data(bulkRNA)
+#' # bulkRNA <- check_RNAseq_df(bulkRNA)
+check_RNAseq_df <- function(Adf){
+  for (i in colnames(Adf)) {
+    Adf[,i] <- as.numeric(Adf[,i])
+  }
+  return(Adf)
+}
 #' Calculate Region preference for each cluster
 #'
 #' @param SeuratObj Seurat object
@@ -27,6 +43,7 @@ scRNAseq_Score_Region <- function(SeuratObj,
 
 
 ){
+  BulkRNAseq.expr <- check_RNAseq_df(BulkRNAseq.expr)
   n.region <- ncol(BulkRNAseq.expr) # how many regions
   sorted.list <- list() # save the ranked fold change results for each region
   # for each region, choose genes with RPKM value >=3.5, and calculate the fold change compared with other regions.
@@ -209,6 +226,7 @@ scRNAseq_Score_Region2 <- function(SeuratObj,
                                   Top.UMI.Cutoff = 1,
                                   Top.numbers = 300
 ){
+  BulkRNAseq.expr <- check_RNAseq_df(BulkRNAseq.expr)
   # average expression value for each cluster.
   scRNAseq.averageExpr <- Seurat::AverageExpression(SeuratObj)[[1]]
   scRNAseq.averageExpr <- scRNAseq.averageExpr[rownames(scRNAseq.averageExpr) %in% rownames(BulkRNAseq.expr),]
