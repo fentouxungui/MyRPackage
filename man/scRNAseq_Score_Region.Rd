@@ -35,5 +35,5 @@ Calculate Region preference for each cluster
 \examples{
 data(scRNA)
 data(bulkRNA)
-scorelist <- scRNAseq_Score_Region(scRNA, bulkRNA)
+score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
 }

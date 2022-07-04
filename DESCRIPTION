@@ -3,7 +3,7 @@ Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
 Authors@R: 
     person("Yongchao", "Zhang", , "zhangyongchao@nibs.ac.cn", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           comment = c(Github = "https://github.com/fentouxungui"))
 Description: functions frequently used at work.
 License: GPL (>= 2)
 Encoding: UTF-8
@@ -15,8 +15,9 @@ LazyData: true
 Imports: 
     dplyr,
     ineq,
-    pheatmap
+    pheatmap,
+    Seurat,
+    stats
 Suggests:
-    ggplot2,
-    Seurat
+    ggplot2
 LazyDataCompression:xz

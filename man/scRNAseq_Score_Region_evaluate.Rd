@@ -20,6 +20,6 @@ hopefully find a combination with a relatively high Gini index
 \examples{
 data(scRNA)
 data(bulkRNA)
-scorelist <- scRNAseq_Score_Region(scRNA, bulkRNA)
-scRNAseq_Score_Region_evaluate(scorelist)
+score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+scRNAseq_Score_Region_evaluate(score.list)
 }

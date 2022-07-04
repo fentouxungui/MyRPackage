@@ -1,0 +1,76 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# MyRPackage
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+R functions used at my work.
+
+## Installation
+
+You can install the development version of MyRPackage from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("fentouxungui/MyRPackage")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example}
+library(MyRPackage)
+```
+
+### scRNAseq
+
+#### Predict Cluster location from bulk RNA-seq
+
+**method 1: Region top Genes in binary mode**
+
+```{r}
+data(scRNA)
+data(bulkRNA)
+score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+scRNAseq_Score_Region_evaluate(score.list)
+# correlation of each parameter combination
+# scRNAseq_Score_Region_evaluate2(score.list)
+```
+
+
+```{r}
+scRNAseq_Score_Region_plot(score.list)
+scRNAseq_Score_Region_plot(score.list, 100, 100)
+```
+
+**method 2: Expression correlation**
+
+```{r}
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman")
+pheatmap::pheatmap(score.matrix)
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
+pheatmap::pheatmap(score.matrix)
+```
+
+
+**compare results from two methods**
+
+
+```{r}
+head(scRNAseq_Score_Compare(score.list,score.matrix),20)
+```

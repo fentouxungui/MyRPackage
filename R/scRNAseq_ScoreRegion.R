@@ -13,7 +13,7 @@
 #' @examples
 #' data(scRNA)
 #' data(bulkRNA)
-#' scorelist <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
 scRNAseq_Score_Region <- function(SeuratObj,
                                   BulkRNAseq.expr,
                                   # filter genes by summed UMI count from all clusters, remove genes with low expression in scRNA-seq.
@@ -104,8 +104,8 @@ scRNAseq_Score_Region <- function(SeuratObj,
 #' @examples
 #' data(scRNA)
 #' data(bulkRNA)
-#' scorelist <- scRNAseq_Score_Region(scRNA, bulkRNA)
-#' scRNAseq_Score_Region_evaluate(scorelist)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' scRNAseq_Score_Region_evaluate(score.list)
 scRNAseq_Score_Region_evaluate <- function(ScoreList){
   gini.list <- lapply(ScoreList, function(x)(unlist(lapply(x, function(x){sum(apply(x, 2, ineq::ineq))}))))
   res.gini <- Reduce(rbind, gini.list)
@@ -127,18 +127,155 @@ scRNAseq_Score_Region_evaluate <- function(ScoreList){
 #' @examples
 #' data(scRNA)
 #' data(bulkRNA)
-#' scorelist <- scRNAseq_Score_Region(scRNA, bulkRNA)
-#' scRNAseq_Score_Region_plot(scorelist)
-#' scRNAseq_Score_Region_plot(scorelist, 100, 100)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' scRNAseq_Score_Region_plot(score.list)
+#' scRNAseq_Score_Region_plot(score.list, 100, 100)
 scRNAseq_Score_Region_plot <- function(ScoreList,UMI = NULL, TopGene = NULL){
   if (is.null(UMI) | is.null(TopGene)) {
+    # 按Region计算各群表达值的Gini系数，然后对5个Region求和。
     gini.list <- lapply(ScoreList, function(x)(unlist(lapply(x, function(x){sum(apply(x, 2, ineq::ineq))}))))
     res.gini <- Reduce(rbind, gini.list)
     rownames(res.gini) <- names(gini.list)
-    umi.gene.max <- which(res.gini == res.gini[which.max(res.gini)],arr.ind=T)
-    message("Using UMI: ", umi.gene.max[1],"; Top Genes: ",umi.gene.max[2])
+    # 有时最大值可能会有多个，用第一个
+    umi.gene.max <- which(res.gini == res.gini[which.max(res.gini)], arr.ind=T)[1,]
+    message("Using UMI Cutoff: ", rownames(res.gini)[umi.gene.max[1]],"; Genes Used: ", colnames(res.gini)[umi.gene.max[2]])
     pheatmap::pheatmap(ScoreList[[umi.gene.max[1]]][[umi.gene.max[2]]])
   }else{
     pheatmap::pheatmap(ScoreList[[as.character(UMI)]][[as.character(TopGene)]])
   }
 }
+
+#' plot Euclidean Distance between each combination
+#'
+#' @param ScoreList A list: Output from scRNAseq_Score_Region function
+#'
+#' @return a heat-map plot of the distance of each combination(genes used and UMI cutoff)
+#' @export
+#'
+#' @examples
+#' data(scRNA)
+#' data(bulkRNA)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' scRNAseq_Score_Region_evaluate2(score.list)
+scRNAseq_Score_Region_evaluate2 <- function(ScoreList){
+  res.list <- list()
+  for (i in names(ScoreList)) {
+    for (j in names(ScoreList[[1]])) {
+      res.list[[paste0("UMI-",i,"-Genes-",j)]] <- ScoreList[[i]][[j]]
+    }
+  }
+  cal_dis <- function(Alist){
+    dis.mat <- matrix(0, nrow = length(Alist), ncol = length(Alist), dimnames = list(names(Alist), names(Alist)))
+    for (i in names(Alist)) {
+      for (j in names(Alist)) {
+        # Euclidean Distance
+        dis <- sqrt(sum((Alist[[i]] - Alist[[j]])^2))
+        # KLD 距离
+        # dis <- KLD(as.matrix(cnn.res.list[[i]]),as.matrix(cnn.res.list[[j]]))$mean.sum.KLD
+        dis.mat[i,j] <- dis
+      }
+    }
+    return(dis.mat)
+  }
+  dis.mat <- cal_dis(res.list)
+  pheatmap::pheatmap(dis.mat)
+}
+
+#' Predict Region preference for each cluster By gene expression correlation
+#'
+#' @param SeuratObj Seurat object
+#' @param BulkRNAseq.expr A data frame: Bulk RNA-seq gene expression values of each region, should have same gene names(row names) as in scRNA-seq
+#' @param Method method used in cor function, one of "spearman", "pearson", "kendall".
+#' @param Genes.Selection use all genes or only selected genes
+#' @param Top.foldchange if use selected genes, the cut off of fold change for each Region compared with other regions
+#' @param Top.UMI.Cutoff if use selected genes, the cut off of UMI for each Region
+#' @param Top.numbers if use selected genes, the cut off of top gene numbers for each Region
+#'
+#' @return A Region * Cluster matrix
+#' @export
+#'
+#' @examples
+#' data(scRNA)
+#' data(bulkRNA)
+#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman")
+#' pheatmap::pheatmap(score.matrix)
+#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
+#' pheatmap::pheatmap(score.matrix)
+scRNAseq_Score_Region2 <- function(SeuratObj,
+                                  BulkRNAseq.expr,
+                                  Method = c("spearman", "pearson", "kendall"),
+                                  Genes.Selection = c("Simple","Top"),
+                                  Top.foldchange = 3.5,
+                                  Top.UMI.Cutoff = 1,
+                                  Top.numbers = 300
+){
+  # average expression value for each cluster.
+  scRNAseq.averageExpr <- Seurat::AverageExpression(SeuratObj)[[1]]
+  scRNAseq.averageExpr <- scRNAseq.averageExpr[rownames(scRNAseq.averageExpr) %in% rownames(BulkRNAseq.expr),]
+  # log transformation for bulk RNA-seq RPKM value
+  BulkRNAseq.expr <- BulkRNAseq.expr[rownames(scRNAseq.averageExpr),]
+  BulkRNAseq.expr <- log(BulkRNAseq.expr + 1)
+  # Simple
+  if (Genes.Selection[1] == "Simple") {
+    # 仅仅保留表达值和均不为0的基因
+    index <- !(apply(BulkRNAseq.expr,1,sum) == 0 | apply(scRNAseq.averageExpr,1,sum) == 0)
+    matrix <- stats::cor(BulkRNAseq.expr[index,], scRNAseq.averageExpr[index,],method=Method[1],use="everything")
+    return(matrix)
+  # Top
+  }else if (Genes.Selection[1] == "Top") {
+    selected.list <- list()
+    for (i in colnames(BulkRNAseq.expr)) {
+      expr_tmp <- BulkRNAseq.expr[BulkRNAseq.expr[,i] >= Top.foldchange,]  # the minimal RPKM value!
+      expr_tmp <- dplyr::mutate(expr_tmp,fc = expr_tmp[,i]/apply(expr_tmp,1,function(x)mean(x))) # calculate fold change
+      # results <- dplyr::arrange(expr_tmp,dplyr::desc(fc)) # rank the genes by fold change
+      results <- expr_tmp[order(expr_tmp$fc, decreasing = TRUE),]
+      selected.list[[i]] <- results # save variant
+    }
+    # annotated with summed UMI counts from scRNA-seq
+    selected.list <- lapply(selected.list, function(x){
+      x$UMIs <- apply(scRNAseq.averageExpr[rownames(x),],1,sum)
+      return(x)
+    })
+    selected.list <- lapply(selected.list,function(x){x[x$UMIs > Top.UMI.Cutoff,]})
+    selected.genes <- unique(unlist(lapply(selected.list,function(x)rownames(x)[1:Top.numbers])))
+    selected.genes <- selected.genes[!is.na(selected.genes)]
+    matrix <- stats::cor(BulkRNAseq.expr[selected.genes,], scRNAseq.averageExpr[selected.genes,],method=Method[1],use="everything")
+    return(matrix)
+  }else{
+    stop("Please check the Genes.Selection parameter!")
+  }
+}
+
+#' Compare scRNAseq_Score_Region and scRNAseq_Score_Region2 outputs by correlation method
+#'
+#' @param ScoreList A list: Output from scRNAseq_Score_Region function
+#' @param ScoreMatrix A matrix: Output from scRNAseq_Score_Region2 function
+#' @param Method method used in cor function, one of "spearman", "pearson", "kendall".
+#'
+#' @return A named Vector
+#' @export
+#'
+#' @examples
+#' data(scRNA)
+#' data(bulkRNA)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
+#' scRNAseq_Score_Compare(score.list,score.matrix)
+scRNAseq_Score_Compare <- function(ScoreList,
+                                     ScoreMatrix,
+                                     Method = c("spearman", "pearson", "kendall")){
+  res.list <- list()
+  for (i in names(ScoreList)) {
+    for (j in names(ScoreList[[1]])) {
+      res.list[[paste0("UMI-",i,"-Genes-",j)]] <- ScoreList[[i]][[j]]
+    }
+  }
+  cor.res <- c()
+  for (i in names(res.list)) {
+    tmp.df <- res.list[[i]][colnames(ScoreMatrix),]
+    cor.res <- append(cor.res, stats::cor(as.vector(tmp.df),as.vector(t(ScoreMatrix)), method = Method[1]))
+  }
+  names(cor.res) <- names(res.list)
+  return(sort(cor.res, decreasing = TRUE))
+}
+
