@@ -1,5 +1,5 @@
 Package: MyRPackage
-Title: What the Package Does (One Line, Title Case)
+Title: R functions used at my work
 Version: 0.0.0.9000
 Authors@R: 
     person("Yongchao", "Zhang", , "zhangyongchao@nibs.ac.cn", role = c("aut", "cre"),

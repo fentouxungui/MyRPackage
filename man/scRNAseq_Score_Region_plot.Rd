@@ -23,8 +23,9 @@ default use the UMI And Top n Genes with the bigest Gini index
 }
 \examples{
 data(scRNA)
-data(bulkRNA)
-score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+data(RNAseq)
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 scRNAseq_Score_Region_plot(score.list)
 scRNAseq_Score_Region_plot(score.list, 100, 100)
 }

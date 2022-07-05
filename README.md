@@ -35,33 +35,40 @@ library(MyRPackage)
 将RNAseq里的基因ID转为symbol，注意，要使用与单细胞数据分析用的GTF文件来生成`FlyGeneMeta`。
 
 ``` r
+# RNAseq data
 data(FlyGeneMeta)
-data(ISC)
-head(ISC)
-#>                R1    R2    R3    R4    R5
-#> FBgn0000003 0.069     0     0     0     0
-#> FBgn0000008 0.525 1.392 0.845 1.056 0.946
-#> FBgn0000014 0.007 0.002     0 0.005 0.001
-#> FBgn0000015  0.05 0.048     0 0.008  0.03
-#> FBgn0000017 0.053 0.045 0.067 0.024 0.039
-#> FBgn0000018 1.062 3.179 2.493 3.157 3.051
-head(scRNAseq_Score_Region_Check(ISC, FlyGeneMeta))
+data(RNAseq)
+head(RNAseq$EE)
+#>                      R1         R2         R3          R4         R5
+#> FBgn0000003 0.000000000 0.00000000 0.00000000 0.000000000 0.00000000
+#> FBgn0000008 0.078084992 0.23652162 0.12130506 0.675924534 0.99934510
+#> FBgn0000014 0.003711065 0.01257281 0.01438128 0.007068035 0.01888023
+#> FBgn0000015 0.142135265 0.36725571 0.07907955 0.301346516 0.68504674
+#> FBgn0000017 0.025049912 0.04514559 0.05932194 0.076590622 0.12278949
+#> FBgn0000018 2.082508122 3.41759888 3.41194403 5.292428057 5.33207506
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
 #> 0 features from data frame not exist in meta file!
-#>                   R1    R2    R3    R4    R5
-#> 7SLRNA:CR32864 0.069     0     0     0     0
-#> a              0.525 1.392 0.845 1.056 0.946
-#> abd-A          0.007 0.002     0 0.005 0.001
-#> Abd-B           0.05 0.048     0 0.008  0.03
-#> Abl            0.053 0.045 0.067 0.024 0.039
-#> abo            1.062 3.179 2.493 3.157 3.051
+head(bulkRNAseq)
+#>                         R1         R2         R3          R4         R5
+#> 7SLRNA:CR32864 0.000000000 0.00000000 0.00000000 0.000000000 0.00000000
+#> a              0.078084992 0.23652162 0.12130506 0.675924534 0.99934510
+#> abd-A          0.003711065 0.01257281 0.01438128 0.007068035 0.01888023
+#> Abd-B          0.142135265 0.36725571 0.07907955 0.301346516 0.68504674
+#> Abl            0.025049912 0.04514559 0.05932194 0.076590622 0.12278949
+#> abo            2.082508122 3.41759888 3.41194403 5.292428057 5.33207506
+# scRNAseq data
+data(scRNA)
+scRNA
+#> An object of class Seurat 
+#> 17559 features across 1860 samples within 1 assay 
+#> Active assay: RNA (17559 features, 4000 variable features)
+#>  4 dimensional reductions calculated: pca, harmony, umap, tsne
 ```
 
 ##### Method 1: Region top Genes in binary mode
 
 ``` r
-data(scRNA)
-data(bulkRNA)
-score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 scRNAseq_Score_Region_evaluate(score.list)
 ```
 
@@ -88,14 +95,14 @@ scRNAseq_Score_Region_plot(score.list, 100, 100)
 ##### Method 2: Expression correlation
 
 ``` r
-score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman")
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
 pheatmap::pheatmap(score.matrix)
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 ``` r
-score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman", Genes.Selection = "Top")
 pheatmap::pheatmap(score.matrix)
 ```
 

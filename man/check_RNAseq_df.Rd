@@ -16,7 +16,7 @@ A data frame with all columns are numeric
 Check Bulk RNA-seq Region data file
 }
 \examples{
-# Not run
-# data(bulkRNA)
-# bulkRNA <- check_RNAseq_df(bulkRNA)
+# Not Run
+# data(RNAseq)
+# bulkRNA <- check_RNAseq_df(RNAseq$EE)
 }

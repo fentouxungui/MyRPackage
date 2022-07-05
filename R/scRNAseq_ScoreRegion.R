@@ -10,9 +10,9 @@
 #'
 #' @examples
 #' data(FlyGeneMeta)
-#' data(ISC)
-#' head(ISC)
-#' head(scRNAseq_Score_Region_Check(ISC, FlyGeneMeta))
+#' data(RNAseq)
+#' head(RNAseq$EE)
+#' head(scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta))
 scRNAseq_Score_Region_Check <- function(BulkRNAseq.expr,
                                         Meta,
                                         from = "gene_id",
@@ -34,9 +34,9 @@ scRNAseq_Score_Region_Check <- function(BulkRNAseq.expr,
 #' @return A data frame with all columns are numeric
 #'
 #' @examples
-#' # Not run
-#' # data(bulkRNA)
-#' # bulkRNA <- check_RNAseq_df(bulkRNA)
+#' # Not Run
+#' # data(RNAseq)
+#' # bulkRNA <- check_RNAseq_df(RNAseq$EE)
 check_RNAseq_df <- function(Adf){
   for (i in colnames(Adf)) {
     Adf[,i] <- as.numeric(Adf[,i])
@@ -57,8 +57,9 @@ check_RNAseq_df <- function(Adf){
 #'
 #' @examples
 #' data(scRNA)
-#' data(bulkRNA)
-#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' data(RNAseq)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 scRNAseq_Score_Region <- function(SeuratObj,
                                   BulkRNAseq.expr,
                                   # filter genes by summed UMI count from all clusters, remove genes with low expression in scRNA-seq.
@@ -150,8 +151,9 @@ scRNAseq_Score_Region <- function(SeuratObj,
 #'
 #' @examples
 #' data(scRNA)
-#' data(bulkRNA)
-#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' data(RNAseq)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 #' scRNAseq_Score_Region_evaluate(score.list)
 scRNAseq_Score_Region_evaluate <- function(ScoreList){
   gini.list <- lapply(ScoreList, function(x)(unlist(lapply(x, function(x){sum(apply(x, 2, ineq::ineq))}))))
@@ -173,8 +175,9 @@ scRNAseq_Score_Region_evaluate <- function(ScoreList){
 #'
 #' @examples
 #' data(scRNA)
-#' data(bulkRNA)
-#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' data(RNAseq)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 #' scRNAseq_Score_Region_plot(score.list)
 #' scRNAseq_Score_Region_plot(score.list, 100, 100)
 scRNAseq_Score_Region_plot <- function(ScoreList,UMI = NULL, TopGene = NULL){
@@ -201,8 +204,9 @@ scRNAseq_Score_Region_plot <- function(ScoreList,UMI = NULL, TopGene = NULL){
 #'
 #' @examples
 #' data(scRNA)
-#' data(bulkRNA)
-#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+#' data(RNAseq)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 #' scRNAseq_Score_Region_evaluate2(score.list)
 scRNAseq_Score_Region_evaluate2 <- function(ScoreList){
   res.list <- list()
@@ -243,10 +247,12 @@ scRNAseq_Score_Region_evaluate2 <- function(ScoreList){
 #'
 #' @examples
 #' data(scRNA)
-#' data(bulkRNA)
-#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman")
+#' data(RNAseq)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
 #' pheatmap::pheatmap(score.matrix)
-#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
+#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman",
+#'                                        Genes.Selection = "Top")
 #' pheatmap::pheatmap(score.matrix)
 scRNAseq_Score_Region2 <- function(SeuratObj,
                                   BulkRNAseq.expr,
@@ -305,9 +311,11 @@ scRNAseq_Score_Region2 <- function(SeuratObj,
 #'
 #' @examples
 #' data(scRNA)
-#' data(bulkRNA)
-#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
-#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
+#' data(RNAseq)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
+#' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman",
+#'                                        Genes.Selection = "Top")
 #' scRNAseq_Score_Compare(score.list,score.matrix)
 scRNAseq_Score_Compare <- function(ScoreList,
                                      ScoreMatrix,

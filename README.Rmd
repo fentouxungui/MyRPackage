@@ -46,19 +46,22 @@ library(MyRPackage)
 将RNAseq里的基因ID转为symbol，注意，要使用与单细胞数据分析用的GTF文件来生成``FlyGeneMeta``。
 
 ```{r}
+# RNAseq data
 data(FlyGeneMeta)
-data(ISC)
-head(ISC)
-head(scRNAseq_Score_Region_Check(ISC, FlyGeneMeta))
+data(RNAseq)
+head(RNAseq$EE)
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+head(bulkRNAseq)
+# scRNAseq data
+data(scRNA)
+scRNA
 ```
 
 
 ##### Method 1: Region top Genes in binary mode
 
 ```{r}
-data(scRNA)
-data(bulkRNA)
-score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
+score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 scRNAseq_Score_Region_evaluate(score.list)
 # correlation of each parameter combination
 # scRNAseq_Score_Region_evaluate2(score.list)
@@ -73,9 +76,9 @@ scRNAseq_Score_Region_plot(score.list, 100, 100)
 ##### Method 2: Expression correlation
 
 ```{r}
-score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman")
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
 pheatmap::pheatmap(score.matrix)
-score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman", Genes.Selection = "Top")
 pheatmap::pheatmap(score.matrix)
 ```
 

@@ -28,7 +28,7 @@ Trans row names of a data frame according to a meta file
 }
 \examples{
 data(FlyGeneMeta)
-data(ISC)
-head(ISC)
-head(scRNAseq_Score_Region_Check(ISC, FlyGeneMeta))
+data(RNAseq)
+head(RNAseq$EE)
+head(scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta))
 }

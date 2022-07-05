@@ -1,8 +1,11 @@
-#' RPKM value from fly five gut region RNAseq
+#' RNA-seq RPKM value of four fly gut cell types from five gut regions
 #'
-#' A dataset containing the RPKM value from fly five gut region RNAseq.
+#' This data set is a list with 4 data.frames, containing the RNA-seq RPKM value of four fly gut cell types(ISC/EB/EC/EE)
+#' from five gut regions, which has a common column in all data.frames.
 #'
-#' @format data frame, with 15287 rows and 5 variables:
+#' @format list, with 4 data frames:
+#' \enumerate{
+#' \item \strong{ISC} A data frame with 15682 rows and 5 columns
 #' \describe{
 #'   \item{R1}{Gut Region 1: numeric}
 #'   \item{R2}{Gut Region 2: numeric}
@@ -10,23 +13,34 @@
 #'   \item{R4}{Gut Region 4: numeric}
 #'   \item{R5}{Gut Region 5: numeric}
 #' }
+#' \item \strong{EB} A data frame with 15682 rows and 5 columns
+#' \describe{
+#'   \item{R1}{Gut Region 1: numeric}
+#'   \item{R2}{Gut Region 2: numeric}
+#'   \item{R3}{Gut Region 3: numeric}
+#'   \item{R4}{Gut Region 4: numeric}
+#'   \item{R5}{Gut Region 5: numeric}
+#' }
+#' \item \strong{EC} A data frame with 15682 rows and 5 columns
+#' \describe{
+#'   \item{R1}{Gut Region 1: numeric}
+#'   \item{R2}{Gut Region 2: numeric}
+#'   \item{R3}{Gut Region 3: numeric}
+#'   \item{R4}{Gut Region 4: numeric}
+#'   \item{R5}{Gut Region 5: numeric}
+#' }
+#' \item \strong{EE} A data frame with 15682 rows and 5 columns
+#' \describe{
+#'   \item{R1}{Gut Region 1: numeric}
+#'   \item{R2}{Gut Region 2: numeric}
+#'   \item{R3}{Gut Region 3: numeric}
+#'   \item{R4}{Gut Region 4: numeric}
+#'   \item{R5}{Gut Region 5: numeric}
+#' }
+#' }
 #' @source \url{http://flygutseq.buchonlab.com/resources}
-"bulkRNA"
+"RNAseq"
 
-#' RPKM value of ISC cells from fly five gut region RNAseq
-#'
-#' A dataset containing the RPKM value from fly five gut region RNAseq.
-#'
-#' @format data frame, with 15683 rows and 5 variables:
-#' \describe{
-#'   \item{R1}{Gut Region 1: numeric}
-#'   \item{R2}{Gut Region 2: numeric}
-#'   \item{R3}{Gut Region 3: numeric}
-#'   \item{R4}{Gut Region 4: numeric}
-#'   \item{R5}{Gut Region 5: numeric}
-#' }
-#' @source \url{http://flygutseq.buchonlab.com/resources}
-"ISC"
 
 #' A subset scRNAseq data in Seurat object
 #'

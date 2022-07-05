@@ -25,8 +25,10 @@ Compare scRNAseq_Score_Region and scRNAseq_Score_Region2 outputs by correlation 
 }
 \examples{
 data(scRNA)
-data(bulkRNA)
-score.list <- scRNAseq_Score_Region(scRNA, bulkRNA)
-score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNA, Method = "spearman", Genes.Selection = "Top")
+data(RNAseq)
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman",
+                                       Genes.Selection = "Top")
 scRNAseq_Score_Compare(score.list,score.matrix)
 }
