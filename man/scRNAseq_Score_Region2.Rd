@@ -38,7 +38,7 @@ Predict Region preference for each cluster By gene expression correlation
 \examples{
 data(scRNA)
 data(RNAseq)
-bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
 pheatmap::pheatmap(score.matrix)
 score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman",

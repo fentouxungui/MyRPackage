@@ -42,12 +42,13 @@
 "RNAseq"
 
 
-#' A subset scRNAseq data in Seurat object
+#' Fly gut scRNA-seq by 10xGenomics
 #'
-#' Fly gut EEs scRNAseq.
+#' Hung R J, Hu Y, Kirchner R, et al. A cell atlas of the adult Drosophila midgut. Proceedings of the National Academy
+#' of Sciences, 2020, 117(3): 1514-1523.
 #'
-#' @format Seurat object, 1869 cells and 17559 features.
-#' @source \url{http://www.nibs.ac.cn/en/yjsjyimgshow.php?cid=5&sid=6&id=774}
+#' @format Seurat object, 2979 cells and 16960 features.
+#' @source \url{https://www.pnas.org/doi/abs/10.1073/pnas.1916820117}
 "scRNA"
 
 #' Fly gene id and name correspondence

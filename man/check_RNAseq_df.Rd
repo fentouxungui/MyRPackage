@@ -18,5 +18,5 @@ Check Bulk RNA-seq Region data file
 \examples{
 # Not Run
 # data(RNAseq)
-# bulkRNA <- check_RNAseq_df(RNAseq$EE)
+# bulkRNA <- check_RNAseq_df(RNAseq$EC)
 }

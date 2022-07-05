@@ -4,10 +4,12 @@
 \alias{scRNAseq_Score_Region_evaluate}
 \title{evaluate the UMI And top n genes combination by Gini index}
 \usage{
-scRNAseq_Score_Region_evaluate(ScoreList)
+scRNAseq_Score_Region_evaluate(ScoreList, ...)
 }
 \arguments{
 \item{ScoreList}{A list: Output from scRNAseq_Score_Region function}
+
+\item{...}{Other parameters passed to pheatmap() function}
 }
 \value{
 a Gini index heatmap of all combinations (x: genes used; y: UMI cutoff)
@@ -18,7 +20,7 @@ To find a combination with a relatively high Gini index
 \examples{
 data(scRNA)
 data(RNAseq)
-bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 scRNAseq_Score_Region_evaluate(score.list)
 }

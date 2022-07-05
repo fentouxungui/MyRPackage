@@ -11,8 +11,8 @@
 #' @examples
 #' data(FlyGeneMeta)
 #' data(RNAseq)
-#' head(RNAseq$EE)
-#' head(scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta))
+#' head(RNAseq$EC)
+#' head(scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta))
 scRNAseq_Score_Region_Check <- function(BulkRNAseq.expr,
                                         Meta,
                                         from = "gene_id",
@@ -36,7 +36,7 @@ scRNAseq_Score_Region_Check <- function(BulkRNAseq.expr,
 #' @examples
 #' # Not Run
 #' # data(RNAseq)
-#' # bulkRNA <- check_RNAseq_df(RNAseq$EE)
+#' # bulkRNA <- check_RNAseq_df(RNAseq$EC)
 check_RNAseq_df <- function(Adf){
   for (i in colnames(Adf)) {
     Adf[,i] <- as.numeric(Adf[,i])
@@ -58,7 +58,7 @@ check_RNAseq_df <- function(Adf){
 #' @examples
 #' data(scRNA)
 #' data(RNAseq)
-#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 #' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 scRNAseq_Score_Region <- function(SeuratObj,
                                   BulkRNAseq.expr,
@@ -149,6 +149,7 @@ scRNAseq_Score_Region <- function(SeuratObj,
 #' To find a combination with a relatively high Gini index
 #'
 #' @param ScoreList A list: Output from scRNAseq_Score_Region function
+#' @param ... Other parameters passed to pheatmap() function
 #'
 #' @return a Gini index heatmap of all combinations (x: genes used; y: UMI cutoff)
 #' @export
@@ -156,14 +157,14 @@ scRNAseq_Score_Region <- function(SeuratObj,
 #' @examples
 #' data(scRNA)
 #' data(RNAseq)
-#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 #' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 #' scRNAseq_Score_Region_evaluate(score.list)
-scRNAseq_Score_Region_evaluate <- function(ScoreList){
+scRNAseq_Score_Region_evaluate <- function(ScoreList, ...){
   gini.list <- lapply(ScoreList, function(x)(unlist(lapply(x, function(x){sum(apply(x, 2, ineq::ineq))}))))
   res.gini <- Reduce(rbind, gini.list)
   rownames(res.gini) <- names(gini.list)
-  pheatmap::pheatmap(res.gini, cluster_rows = FALSE, cluster_cols = FALSE)
+  return(pheatmap::pheatmap(res.gini, ...))
 }
 
 
@@ -173,6 +174,7 @@ scRNAseq_Score_Region_evaluate <- function(ScoreList){
 #' @param ScoreList A list: Output from scRNAseq_Score_Region function
 #' @param UMI UMI cutoff defined in scRNAseq_Score_Region function - UMI.gradient
 #' @param TopGene Top n genes defined in scRNAseq_Score_Region function - Genes.gradient
+#' @param ... Other parameters passed to pheatmap() function
 #'
 #' @return A heat map of cluster preference in each region
 #' @export
@@ -180,11 +182,11 @@ scRNAseq_Score_Region_evaluate <- function(ScoreList){
 #' @examples
 #' data(scRNA)
 #' data(RNAseq)
-#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 #' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 #' scRNAseq_Score_Region_plot(score.list)
 #' scRNAseq_Score_Region_plot(score.list, 100, 100)
-scRNAseq_Score_Region_plot <- function(ScoreList,UMI = NULL, TopGene = NULL){
+scRNAseq_Score_Region_plot <- function(ScoreList,UMI = NULL, TopGene = NULL, ...){
   if (is.null(UMI) | is.null(TopGene)) {
     # 按Region计算各群表达值的Gini系数，然后对5个Region求和。
     gini.list <- lapply(ScoreList, function(x)(unlist(lapply(x, function(x){sum(apply(x, 2, ineq::ineq))}))))
@@ -193,9 +195,9 @@ scRNAseq_Score_Region_plot <- function(ScoreList,UMI = NULL, TopGene = NULL){
     # 有时最大值可能会有多个，用第一个
     umi.gene.max <- which(res.gini == res.gini[which.max(res.gini)], arr.ind=T)[1,]
     message("Using UMI Cutoff: ", rownames(res.gini)[umi.gene.max[1]],"; Genes Used: ", colnames(res.gini)[umi.gene.max[2]])
-    pheatmap::pheatmap(ScoreList[[umi.gene.max[1]]][[umi.gene.max[2]]])
+    return(pheatmap::pheatmap(ScoreList[[umi.gene.max[1]]][[umi.gene.max[2]]], ...))
   }else{
-    pheatmap::pheatmap(ScoreList[[as.character(UMI)]][[as.character(TopGene)]])
+    return(pheatmap::pheatmap(ScoreList[[as.character(UMI)]][[as.character(TopGene)]], ...))
   }
 }
 
@@ -209,7 +211,7 @@ scRNAseq_Score_Region_plot <- function(ScoreList,UMI = NULL, TopGene = NULL){
 #' @examples
 #' data(scRNA)
 #' data(RNAseq)
-#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 #' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 #' scRNAseq_Score_Region_evaluate2(score.list)
 scRNAseq_Score_Region_evaluate2 <- function(ScoreList){
@@ -233,7 +235,7 @@ scRNAseq_Score_Region_evaluate2 <- function(ScoreList){
     return(dis.mat)
   }
   dis.mat <- cal_dis(res.list)
-  pheatmap::pheatmap(dis.mat)
+  return(pheatmap::pheatmap(dis.mat))
 }
 
 #' Predict Region preference for each cluster By gene expression correlation
@@ -252,7 +254,7 @@ scRNAseq_Score_Region_evaluate2 <- function(ScoreList){
 #' @examples
 #' data(scRNA)
 #' data(RNAseq)
-#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 #' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
 #' pheatmap::pheatmap(score.matrix)
 #' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman",
@@ -320,7 +322,7 @@ scRNAseq_Score_Region2 <- function(SeuratObj,
 #' @examples
 #' data(scRNA)
 #' data(RNAseq)
-#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+#' bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 #' score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 #' score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman",
 #'                                        Genes.Selection = "Top")

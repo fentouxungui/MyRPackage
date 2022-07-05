@@ -5,7 +5,7 @@
 \title{Heatmap of the region preference of each cluster
 default use the UMI And Top n Genes with the bigest Gini index}
 \usage{
-scRNAseq_Score_Region_plot(ScoreList, UMI = NULL, TopGene = NULL)
+scRNAseq_Score_Region_plot(ScoreList, UMI = NULL, TopGene = NULL, ...)
 }
 \arguments{
 \item{ScoreList}{A list: Output from scRNAseq_Score_Region function}
@@ -13,6 +13,8 @@ scRNAseq_Score_Region_plot(ScoreList, UMI = NULL, TopGene = NULL)
 \item{UMI}{UMI cutoff defined in scRNAseq_Score_Region function - UMI.gradient}
 
 \item{TopGene}{Top n genes defined in scRNAseq_Score_Region function - Genes.gradient}
+
+\item{...}{Other parameters passed to pheatmap() function}
 }
 \value{
 A heat map of cluster preference in each region
@@ -24,7 +26,7 @@ default use the UMI And Top n Genes with the bigest Gini index
 \examples{
 data(scRNA)
 data(RNAseq)
-bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 scRNAseq_Score_Region_plot(score.list)
 scRNAseq_Score_Region_plot(score.list, 100, 100)

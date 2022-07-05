@@ -18,7 +18,7 @@ plot Euclidean Distance between each combination
 \examples{
 data(scRNA)
 data(RNAseq)
-bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
 scRNAseq_Score_Region_evaluate2(score.list)
 }

@@ -4,6 +4,9 @@
 # MyRPackage
 
 <!-- badges: start -->
+
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 
 R functions used at my work.
@@ -11,7 +14,7 @@ R functions used at my work.
 ## Installation
 
 You can install the development version of MyRPackage from
-[GitHub](https://github.com/) with:
+[GitHub](https://github.com/fentouxungui/MyRPackage) with:
 
 ``` r
 # install.packages("devtools")
@@ -23,12 +26,25 @@ devtools::install_github("fentouxungui/MyRPackage")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
+library(Seurat)
+#> Attaching SeuratObject
+#> Attaching sp
+library(gridExtra)
 library(MyRPackage)
 ```
 
 ### scRNAseq
 
 #### Predict Cluster location from bulk RNA-seq
+
+使用EC的各个区段的RNA-seq值，来对单细胞中的各个EC细胞亚群，进行定位预测。
+
+> 单细胞数据来自文章: Hung R J, Hu Y, Kirchner R, et al. A cell atlas of
+> the adult Drosophila midgut\[J\]. Proceedings of the National Academy
+> of Sciences, 2020, 117(3): 1514-1523.
+
+> RNA-seq数据来自[Flygut-seq: Cell and region specific gene expression
+> of the fly midgut](http://flygutseq.buchonlab.com/)
 
 ##### Preparation
 
@@ -38,91 +54,132 @@ library(MyRPackage)
 # RNAseq data
 data(FlyGeneMeta)
 data(RNAseq)
-head(RNAseq$EE)
-#>                      R1         R2         R3          R4         R5
-#> FBgn0000003 0.000000000 0.00000000 0.00000000 0.000000000 0.00000000
-#> FBgn0000008 0.078084992 0.23652162 0.12130506 0.675924534 0.99934510
-#> FBgn0000014 0.003711065 0.01257281 0.01438128 0.007068035 0.01888023
-#> FBgn0000015 0.142135265 0.36725571 0.07907955 0.301346516 0.68504674
-#> FBgn0000017 0.025049912 0.04514559 0.05932194 0.076590622 0.12278949
-#> FBgn0000018 2.082508122 3.41759888 3.41194403 5.292428057 5.33207506
-bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
+head(RNAseq$EC)
+#>                     R1         R2         R3         R4         R5
+#> FBgn0000003 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000
+#> FBgn0000008 0.99406575 1.96251049 0.31337624 1.90011232 0.52664174
+#> FBgn0000014 0.02751965 0.14201820 0.10356404 0.30602071 0.15670007
+#> FBgn0000015 0.01164936 0.08265733 0.05089256 0.17023985 0.09432941
+#> FBgn0000017 0.01560269 0.04168749 0.03383766 0.05107372 0.04774208
+#> FBgn0000018 4.01871689 4.47380060 4.42188673 4.79100658 4.35939753
+bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 #> 395 features from data frame not exist in meta file!
 head(bulkRNAseq)
-#>                         R1         R2         R3          R4         R5
-#> 7SLRNA:CR32864 0.000000000 0.00000000 0.00000000 0.000000000 0.00000000
-#> a              0.078084992 0.23652162 0.12130506 0.675924534 0.99934510
-#> abd-A          0.003711065 0.01257281 0.01438128 0.007068035 0.01888023
-#> Abd-B          0.142135265 0.36725571 0.07907955 0.301346516 0.68504674
-#> Abl            0.025049912 0.04514559 0.05932194 0.076590622 0.12278949
-#> abo            2.082508122 3.41759888 3.41194403 5.292428057 5.33207506
+#>                        R1         R2         R3         R4         R5
+#> 7SLRNA:CR32864 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000
+#> a              0.99406575 1.96251049 0.31337624 1.90011232 0.52664174
+#> abd-A          0.02751965 0.14201820 0.10356404 0.30602071 0.15670007
+#> Abd-B          0.01164936 0.08265733 0.05089256 0.17023985 0.09432941
+#> Abl            0.01560269 0.04168749 0.03383766 0.05107372 0.04774208
+#> abo            4.01871689 4.47380060 4.42188673 4.79100658 4.35939753
+```
+
+``` r
 # scRNAseq data
 data(scRNA)
 scRNA
 #> An object of class Seurat 
-#> 17559 features across 1860 samples within 1 assay 
-#> Active assay: RNA (17559 features, 4000 variable features)
+#> 16960 features across 2979 samples within 1 assay 
+#> Active assay: RNA (16960 features, 4000 variable features)
 #>  4 dimensional reductions calculated: pca, harmony, umap, tsne
+DimPlot(scRNA, label = TRUE) + NoLegend()
 ```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" />
 
 ##### Method 1: Region top Genes in binary mode
 
 ``` r
 score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
-#> 0 features from RNA-seq not exist in scRNAseq!
-scRNAseq_Score_Region_evaluate(score.list)
+#> 2724 features from RNA-seq not exist in scRNAseq!
+scRNAseq_Score_Region_evaluate(score.list, cluster_rows = FALSE, cluster_cols = FALSE, 
+                               main = "Gini index of each parameter combination (x - Top Genes, y - UMI Cutoff)")
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ``` r
 # correlation of each parameter combination
 # scRNAseq_Score_Region_evaluate2(score.list)
 ```
 
+使用默认参数，即组合有最大Gini index value。
+
 ``` r
-scRNAseq_Score_Region_plot(score.list)
+p1 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, silent = TRUE)
 #> Using UMI Cutoff: 20; Genes Used: 10
-```
-
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
-
-``` r
-scRNAseq_Score_Region_plot(score.list, 100, 100)
-```
-
-<img src="man/figures/README-unnamed-chunk-4-2.png" width="100%" />
-
-##### Method 2: Expression correlation
-
-``` r
-score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
-#> 0 features from RNA-seq not exist in scRNAseq!
-pheatmap::pheatmap(score.matrix)
+p2 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, scale = "row", silent = TRUE)
+#> Using UMI Cutoff: 20; Genes Used: 10
+grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
+    #> NULL
+
+使用自定义参数，即设定UMI Cutoff为100和选取前100个基因。
+
 ``` r
-score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman", Genes.Selection = "Top")
-#> 0 features from RNA-seq not exist in scRNAseq!
-pheatmap::pheatmap(score.matrix)
+p1 <- scRNAseq_Score_Region_plot(score.list, 100, 100, cluster_cols = FALSE, silent = TRUE)
+p2 <- scRNAseq_Score_Region_plot(score.list, 100, 100, cluster_cols = FALSE, scale = "row", silent = TRUE)
+grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+
+    #> NULL
+
+**可以看到，使用这两种参数，都可以准确判定EC亚群的定位，并可以给出更准确的定位。**
+
+##### Method 2: Expression correlation
+
+使用所有基因
+
+``` r
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
+#> 2724 features from RNA-seq not exist in scRNAseq!
+p1 <- pheatmap::pheatmap(score.matrix, cluster_rows = FALSE, silent = TRUE)
+p2 <- pheatmap::pheatmap(score.matrix, scale = "column", cluster_rows = FALSE, silent = TRUE)
+grid.arrange(p1[[4]],p2[[4]],nrow = 2) & NoLegend()
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+    #> NULL
+
+使用Top基因
+
+``` r
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman", Genes.Selection = "Top")
+#> 2724 features from RNA-seq not exist in scRNAseq!
+p1 <- pheatmap::pheatmap(score.matrix, cluster_rows = FALSE, silent = TRUE)
+p2 <- pheatmap::pheatmap(score.matrix, scale = "column", cluster_rows = FALSE, silent = TRUE)
+grid.arrange(p1[[4]],p2[[4]],nrow = 2) & NoLegend()
+```
+
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+
+    #> NULL
+
+**同样使用基于correlation的两种计算方式，也都可以准确判定EC亚群的定位，并可以给出更准确的定位。**
+
+感兴趣的童鞋，可以测试一下用EE的Regional RNA-seq RPKM
+value预测EE细胞类群的定位！
 
 ##### compare results from two methods
 
+计算不同预测方案的cluster \* region 矩阵之间的相关性。
+
 ``` r
 head(scRNAseq_Score_Compare(score.list,score.matrix),20)
-#>   UMI-10-Genes-400  UMI-100-Genes-400 UMI-1000-Genes-400 UMI-1500-Genes-300 
-#>          0.7387318          0.7387318          0.7387318          0.7123555 
-#>   UMI-10-Genes-300  UMI-100-Genes-300 UMI-1000-Genes-300   UMI-10-Genes-500 
-#>          0.7095885          0.7095885          0.7095885          0.7006579 
-#>  UMI-100-Genes-500 UMI-1000-Genes-500    UMI-50-Genes-50   UMI-500-Genes-50 
-#>          0.7006579          0.7006579          0.6971685          0.6971685 
-#> UMI-1500-Genes-200    UMI-50-Genes-30   UMI-500-Genes-30   UMI-10-Genes-200 
-#>          0.6921613          0.6844487          0.6844487          0.6827991 
-#>  UMI-100-Genes-200 UMI-1000-Genes-200   UMI-30-Genes-200  UMI-200-Genes-300 
-#>          0.6827991          0.6827991          0.6770857          0.6748740
+#>    UMI-20-Genes-40   UMI-200-Genes-40  UMI-2000-Genes-40  UMI-1500-Genes-50 
+#>          0.5777317          0.5777317          0.5777317          0.5716270 
+#>    UMI-10-Genes-40   UMI-100-Genes-40  UMI-1000-Genes-40    UMI-10-Genes-50 
+#>          0.5565741          0.5565741          0.5565741          0.5516927 
+#>   UMI-100-Genes-50  UMI-1000-Genes-50    UMI-20-Genes-20   UMI-200-Genes-20 
+#>          0.5516927          0.5516927          0.5444626          0.5444626 
+#>  UMI-2000-Genes-20   UMI-10-Genes-100  UMI-100-Genes-100 UMI-1000-Genes-100 
+#>          0.5444626          0.5440390          0.5440390          0.5440390 
+#>  UMI-1500-Genes-40 UMI-1500-Genes-100    UMI-10-Genes-30   UMI-100-Genes-30 
+#>          0.5420852          0.5397056          0.5365468          0.5365468
 ```
