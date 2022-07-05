@@ -47,7 +47,7 @@ head(RNAseq$EE)
 #> FBgn0000017 0.025049912 0.04514559 0.05932194 0.076590622 0.12278949
 #> FBgn0000018 2.082508122 3.41759888 3.41194403 5.292428057 5.33207506
 bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EE, FlyGeneMeta)
-#> 0 features from data frame not exist in meta file!
+#> 395 features from data frame not exist in meta file!
 head(bulkRNAseq)
 #>                         R1         R2         R3          R4         R5
 #> 7SLRNA:CR32864 0.000000000 0.00000000 0.00000000 0.000000000 0.00000000
@@ -69,6 +69,7 @@ scRNA
 
 ``` r
 score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
+#> 0 features from RNA-seq not exist in scRNAseq!
 scRNAseq_Score_Region_evaluate(score.list)
 ```
 
@@ -96,6 +97,7 @@ scRNAseq_Score_Region_plot(score.list, 100, 100)
 
 ``` r
 score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
+#> 0 features from RNA-seq not exist in scRNAseq!
 pheatmap::pheatmap(score.matrix)
 ```
 
@@ -103,6 +105,7 @@ pheatmap::pheatmap(score.matrix)
 
 ``` r
 score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman", Genes.Selection = "Top")
+#> 0 features from RNA-seq not exist in scRNAseq!
 pheatmap::pheatmap(score.matrix)
 ```
 

@@ -18,7 +18,7 @@ scRNAseq_Score_Region_Check <- function(BulkRNAseq.expr,
                                         from = "gene_id",
                                         to = "gene_name"){
   # how many row names of BulkRNAseq.expr not exist in Meta.
-  not.exists <- rownames(Meta)[rownames(Meta) %in% Meta[,from]]
+  not.exists <- rownames(BulkRNAseq.expr)[!rownames(BulkRNAseq.expr) %in% Meta[,from]]
   message(paste0(length(not.exists), " features from data frame not exist in meta file!"))
   BulkRNAseq.expr <- BulkRNAseq.expr[rownames(BulkRNAseq.expr) %in%  Meta[,from],]
   mapping <- Meta[,to]
@@ -74,6 +74,10 @@ scRNAseq_Score_Region <- function(SeuratObj,
 
 ){
   BulkRNAseq.expr <- check_RNAseq_df(BulkRNAseq.expr)
+  # RNAseq里的基因是否都存在于scRNAseq中
+  not.exists <- rownames(BulkRNAseq.expr)[!rownames(BulkRNAseq.expr) %in% rownames(SeuratObj)]
+  message(paste0(length(not.exists), " features from RNA-seq not exist in scRNAseq!"))
+  BulkRNAseq.expr <- BulkRNAseq.expr[rownames(BulkRNAseq.expr) %in% rownames(SeuratObj),]
   n.region <- ncol(BulkRNAseq.expr) # how many regions
   sorted.list <- list() # save the ranked fold change results for each region
   # for each region, choose genes with RPKM value >=3.5, and calculate the fold change compared with other regions.
@@ -263,6 +267,10 @@ scRNAseq_Score_Region2 <- function(SeuratObj,
                                   Top.numbers = 300
 ){
   BulkRNAseq.expr <- check_RNAseq_df(BulkRNAseq.expr)
+  # RNAseq里的基因是否都存在于scRNAseq中
+  not.exists <- rownames(BulkRNAseq.expr)[!rownames(BulkRNAseq.expr) %in% rownames(SeuratObj)]
+  message(paste0(length(not.exists), " features from RNA-seq not exist in scRNAseq!"))
+  BulkRNAseq.expr <- BulkRNAseq.expr[rownames(BulkRNAseq.expr) %in% rownames(SeuratObj),]
   # average expression value for each cluster.
   scRNAseq.averageExpr <- Seurat::AverageExpression(SeuratObj)[[1]]
   scRNAseq.averageExpr <- scRNAseq.averageExpr[rownames(scRNAseq.averageExpr) %in% rownames(BulkRNAseq.expr),]
