@@ -21,7 +21,7 @@ You can install the development version of MyRPackage from
 devtools::install_github("fentouxungui/MyRPackage")
 ```
 
-## Example
+## Examples
 
 This is a basic example which shows you how to solve a common problem:
 
@@ -33,9 +33,9 @@ library(gridExtra)
 library(MyRPackage)
 ```
 
-### scRNAseq
+### 1. scRNAseq
 
-#### Predict Cluster location from bulk RNA-seq
+#### 1.1 Predict Cluster location from bulk RNA-seq
 
 使用EC的各个区段的RNA-seq值，来对单细胞中的各个EC细胞亚群，进行定位预测。
 
@@ -46,7 +46,7 @@ library(MyRPackage)
 > RNA-seq数据来自[Flygut-seq: Cell and region specific gene expression
 > of the fly midgut](http://flygutseq.buchonlab.com/)
 
-##### Preparation
+##### 1.1.1 Preparation
 
 将RNAseq里的基因ID转为symbol，注意，要使用与单细胞数据分析用的GTF文件来生成`FlyGeneMeta`。
 
@@ -85,9 +85,9 @@ scRNA
 DimPlot(scRNA, label = TRUE) + NoLegend()
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" style="display: block; margin: auto;" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;" />
 
-##### Method 1: Region top Genes in binary mode
+##### 1.1.2 Method 1: Region top Genes in binary mode
 
 ``` r
 score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
@@ -96,14 +96,14 @@ scRNAseq_Score_Region_evaluate(score.list, cluster_rows = FALSE, cluster_cols = 
                                main = "Gini index of each parameter combination (x - Top Genes, y - UMI Cutoff)")
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 ``` r
 # correlation of each parameter combination
 # scRNAseq_Score_Region_evaluate2(score.list)
 ```
 
-使用默认参数，即组合有最大Gini index value。
+**使用默认参数，即组合有最大Gini index value。**
 
 ``` r
 p1 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, silent = TRUE)
@@ -113,11 +113,11 @@ p2 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, scale = "row"
 grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
     #> NULL
 
-使用自定义参数，即设定UMI Cutoff为100和选取前100个基因。
+**使用自定义参数，即设定UMI Cutoff为100和选取前100个基因。**
 
 ``` r
 p1 <- scRNAseq_Score_Region_plot(score.list, 100, 100, cluster_cols = FALSE, silent = TRUE)
@@ -125,32 +125,18 @@ p2 <- scRNAseq_Score_Region_plot(score.list, 100, 100, cluster_cols = FALSE, sca
 grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
     #> NULL
 
 **可以看到，使用这两种参数，都可以准确判定EC亚群的定位，并可以给出更准确的定位。**
 
-##### Method 2: Expression correlation
+##### 1.1.3 Method 2: Expression correlation
 
-使用所有基因
+**使用所有基因**
 
 ``` r
 score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman")
-#> 2724 features from RNA-seq not exist in scRNAseq!
-p1 <- pheatmap::pheatmap(score.matrix, cluster_rows = FALSE, silent = TRUE)
-p2 <- pheatmap::pheatmap(score.matrix, scale = "column", cluster_rows = FALSE, silent = TRUE)
-grid.arrange(p1[[4]],p2[[4]],nrow = 2) & NoLegend()
-```
-
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
-
-    #> NULL
-
-使用Top基因
-
-``` r
-score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman", Genes.Selection = "Top")
 #> 2724 features from RNA-seq not exist in scRNAseq!
 p1 <- pheatmap::pheatmap(score.matrix, cluster_rows = FALSE, silent = TRUE)
 p2 <- pheatmap::pheatmap(score.matrix, scale = "column", cluster_rows = FALSE, silent = TRUE)
@@ -161,14 +147,28 @@ grid.arrange(p1[[4]],p2[[4]],nrow = 2) & NoLegend()
 
     #> NULL
 
+**使用Top基因**
+
+``` r
+score.matrix <- scRNAseq_Score_Region2(scRNA, bulkRNAseq, Method = "spearman", Genes.Selection = "Top")
+#> 2724 features from RNA-seq not exist in scRNAseq!
+p1 <- pheatmap::pheatmap(score.matrix, cluster_rows = FALSE, silent = TRUE)
+p2 <- pheatmap::pheatmap(score.matrix, scale = "column", cluster_rows = FALSE, silent = TRUE)
+grid.arrange(p1[[4]],p2[[4]],nrow = 2) & NoLegend()
+```
+
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+
+    #> NULL
+
 **同样使用基于correlation的两种计算方式，也都可以准确判定EC亚群的定位，并可以给出更准确的定位。**
 
 感兴趣的童鞋，可以测试一下用EE的Regional RNA-seq RPKM
 value预测EE细胞类群的定位！
 
-##### compare results from two methods
+##### 1.1.4 compare results from two methods
 
-计算不同预测方案的cluster \* region 矩阵之间的相关性。
+**计算不同预测方案的cluster \* region 矩阵之间的相关性。**
 
 ``` r
 head(scRNAseq_Score_Compare(score.list,score.matrix),20)
@@ -183,3 +183,5 @@ head(scRNAseq_Score_Compare(score.list,score.matrix),20)
 #>  UMI-1500-Genes-40 UMI-1500-Genes-100    UMI-10-Genes-30   UMI-100-Genes-30 
 #>          0.5420852          0.5397056          0.5365468          0.5365468
 ```
+
+**更推荐的方案：从RNAseq的fastq文件入手，计算各个区域的高表达基因，做成基因集合，然后对每一个单细胞进行region定位的偏好性打分（AddModuleScore？），进而也能推断群水平的region偏好性。**
