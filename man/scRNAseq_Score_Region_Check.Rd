@@ -8,7 +8,8 @@ scRNAseq_Score_Region_Check(
   BulkRNAseq.expr,
   Meta,
   from = "gene_id",
-  to = "gene_name"
+  to = "gene_name",
+  output.lost.genes = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ scRNAseq_Score_Region_Check(
 \item{from}{old name}
 
 \item{to}{new name}
+
+\item{output.lost.genes}{output the genes exist in RNA-seq data while not exist in scRNA-seq data, Default FALSE.}
 }
 \value{
 A data frame with row names changed (rows may not as long as before)

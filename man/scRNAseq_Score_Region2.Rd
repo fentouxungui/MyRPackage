@@ -11,7 +11,8 @@ scRNAseq_Score_Region2(
   Genes.Selection = c("Simple", "Top"),
   Top.foldchange = 3.5,
   Top.UMI.Cutoff = 1,
-  Top.numbers = 300
+  Top.numbers = 300,
+  Output.lost.genes = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ scRNAseq_Score_Region2(
 \item{Top.UMI.Cutoff}{if use selected genes, the cut off of UMI for each Region}
 
 \item{Top.numbers}{if use selected genes, the cut off of top gene numbers for each Region}
+
+\item{Output.lost.genes}{output the genes exist in RNA-seq data while not exist in scRNA-seq data, Default FALSE.}
 }
 \value{
 A Region * Cluster matrix

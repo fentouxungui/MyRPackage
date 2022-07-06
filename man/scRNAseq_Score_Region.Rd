@@ -9,8 +9,10 @@ scRNAseq_Score_Region(
   BulkRNAseq.expr,
   UMI.gradient = c(10, 20, 30, 40, 50, 100, 200, 500, 1000, 1500, 2000),
   Genes.gradient = c(10, 20, 30, 40, 50, 100, 200, 300, 400, 500),
-  minimal.RNAseq.value = 0.5,
-  scRNAseq.expression.cut = 0.5
+  minimal.RNAseq.value = 3.5,
+  scRNAseq.expression.cut = 0.5,
+  Output.lost.genes = FALSE,
+  Customized.GeneList = NULL
 )
 }
 \arguments{
@@ -25,9 +27,13 @@ scRNAseq_Score_Region(
 \item{minimal.RNAseq.value}{A numeric: remove genes with low expression value in bulk RNA-seq}
 
 \item{scRNAseq.expression.cut}{A numeric: cut off of the scaled value to define whether a gene is expressed or not.}
+
+\item{Output.lost.genes}{output the genes exist in RNA-seq data while not exist in scRNA-seq data, Default FALSE.}
+
+\item{Customized.GeneList}{A list: customized regional markers}
 }
 \value{
-A list: cluster * Region preference for each UMI And Top N genes combination
+A list: 1. selected genes for each region; 2. cluster * Region preference for each UMI And Top N genes combination
 }
 \description{
 Calculate Region preference for each cluster
@@ -37,4 +43,8 @@ data(scRNA)
 data(RNAseq)
 bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq$EC, FlyGeneMeta)
 score.list <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
+gene.list <- scRNAseq_Score_Region_ExtractFeatures(score.list)
+GeneList <- list()
+for(i in colnames(gene.list)){ GeneList[[i]] <- gene.list[,i]}
+score.list.customized <- scRNAseq_Score_Region(SeuratObj = scRNA, Customized.GeneList = GeneList)
 }

@@ -17,7 +17,9 @@ Imports:
     ineq,
     pheatmap,
     Seurat,
-    stats
+    stats,
+    VennDiagram,
+    grid
 Suggests:
     ggplot2
 LazyDataCompression:xz

@@ -89,6 +89,13 @@ p2 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, scale = "row"
 grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
 ```
 
+```{r}
+# show the selected genes
+futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
+scRNAseq_Score_Region_ExtractFeatures(score.list)
+```
+
+
 **使用自定义参数，即设定UMI Cutoff为100和选取前100个基因。**
 
 
@@ -96,6 +103,12 @@ grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
 p1 <- scRNAseq_Score_Region_plot(score.list, 100, 100, cluster_cols = FALSE, silent = TRUE)
 p2 <- scRNAseq_Score_Region_plot(score.list, 100, 100, cluster_cols = FALSE, scale = "row", silent = TRUE)
 grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
+```
+
+```{r}
+# show the selected genes
+# futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
+# scRNAseq_Score_Region_ExtractFeatures(score.list, 100, 100)
 ```
 
 
@@ -135,4 +148,10 @@ head(scRNAseq_Score_Compare(score.list,score.matrix),20)
 
 **更推荐的方案：从RNAseq的fastq文件入手，计算各个区域的高表达基因，做成基因集合，然后对每一个单细胞进行region定位的偏好性打分（AddModuleScore？），进而也能推断群水平的region偏好性。**
 
+
+## Session Info
+
+```{r}
+sessionInfo()
+```
 
