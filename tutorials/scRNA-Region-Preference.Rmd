@@ -1,0 +1,103 @@
+---
+title: "scRNA-Region-Preference"
+author: "Zhang Yongchao"
+date: '2022-07-12'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# 使用自定义的基因集合来做region打分
+
+```{r}
+library(MyRPackage)
+library(Seurat)
+library(gridExtra)
+data(RNAseq)
+data(scRNA)
+```
+
+## 自定义基因list
+
+```{r}
+# null
+```
+
+## 或者构建一个
+
+每个区域分别计算top基因，然后取交集/并集，或者基于出现的频次
+
+```{r}
+res <- list()
+for (i in names(RNAseq)) {
+  bulkRNAseq <- scRNAseq_Score_Region_Check(RNAseq[[i]], FlyGeneMeta)
+  res[[i]] <- scRNAseq_Score_Region(scRNA, bulkRNAseq)
+}
+futile.logger::flog.threshold(futile.logger::ERROR, name = "VennDiagramLogger")
+res.genes <- list()
+for (i in names(res)) {
+  res.genes[[i]] <- scRNAseq_Score_Region_ExtractFeatures(res[[i]], UMI = 10, TopGene = 100)
+}
+
+res.genes.df <- Reduce(rbind, res.genes)
+overlap <- list()
+for (i in colnames(res.genes.df)) {
+  overlap[[i]] <- sort(table(res.genes.df[,i]))
+}
+
+overlap.chosen.34 <- lapply(overlap, function(x)names(x)[x > 2])  # 至少在4个region中的3个region出现
+overlap.chosen.34
+
+overlap.chosen.4 <- lapply(overlap, function(x)names(x)[x > 3])  # 取交集
+overlap.chosen.4
+
+overlap.chosen.all <- lapply(overlap, function(x)unique(names(x)))  # 取并集
+```
+
+# 测试
+
+## 至少在4个region中的3个region出现
+
+```{r}
+data(scRNA)
+score.list <- scRNAseq_Score_Region(scRNA, Customized.GeneList = overlap.chosen.34)
+p1 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, silent = TRUE, UMI = "customized",TopGene = "customized")
+#> Using UMI Cutoff: 20; Genes Used: 10
+p2 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, scale = "row", silent = TRUE, UMI = "customized",TopGene = "customized")
+#> Using UMI Cutoff: 20; Genes Used: 10
+grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
+```
+
+
+
+## 取交集
+
+```{r}
+data(scRNA)
+score.list <- scRNAseq_Score_Region(scRNA, Customized.GeneList = overlap.chosen.4)
+p1 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, silent = TRUE, UMI = "customized",TopGene = "customized")
+#> Using UMI Cutoff: 20; Genes Used: 10
+p2 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, scale = "row", silent = TRUE, UMI = "customized",TopGene = "customized")
+#> Using UMI Cutoff: 20; Genes Used: 10
+grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
+```
+
+## 取并集
+
+```{r}
+data(scRNA)
+score.list <- scRNAseq_Score_Region(scRNA, Customized.GeneList = overlap.chosen.all)
+p1 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, silent = TRUE, UMI = "customized",TopGene = "customized")
+#> Using UMI Cutoff: 20; Genes Used: 10
+p2 <- scRNAseq_Score_Region_plot(score.list, cluster_cols = FALSE, scale = "row", silent = TRUE, UMI = "customized",TopGene = "customized")
+#> Using UMI Cutoff: 20; Genes Used: 10
+grid.arrange(p1[[4]],p2[[4]],nrow = 1) & NoLegend()
+```
+
+**预测准确性不够高~**
+
+
+
