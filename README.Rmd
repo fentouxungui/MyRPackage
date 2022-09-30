@@ -146,7 +146,15 @@ grid.arrange(p1[[4]],p2[[4]],nrow = 2) & NoLegend()
 head(scRNAseq_Score_Compare(score.list,score.matrix),20)
 ```
 
+#### 细胞水平的基于区域基因的打分
+
 **更推荐的方案：从RNAseq的fastq文件入手，计算各个区域的高表达基因，做成基因集合，然后对每一个单细胞进行region定位的偏好性打分（AddModuleScore？），进而也能推断群水平的region偏好性。**
+
+```{r fig.width=10,fig.height=6}
+pbmc <- AddModuleScore(scRNA, features = score.list$`20`$`20`$Genes)
+DimPlot(pbmc, label = TRUE)
+FeaturePlot(pbmc,features = paste0("Cluster",1:5), ncol = 3)
+```
 
 
 ## Session Info
